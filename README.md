@@ -1,2 +1,2 @@
 # find-student
-A simple API to develop my golang skills
+A simple API to practice making projects in Go.

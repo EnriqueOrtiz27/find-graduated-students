@@ -1,6 +1,6 @@
 package utils
 
-type Graduate struct {
+type Student struct {
 	Name string
 	Year string
 }

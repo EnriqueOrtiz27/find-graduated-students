@@ -1,31 +1,43 @@
-package extract
+package main
 
 import (
+	"findStudent/src/utils"
 	"fmt"
 	"github.com/gocolly/colly/v2"
 )
 
 func main() {
-	GetEconomists()
+	careers := map[string]string{
+		"finance":                 "001053",
+		"economics":               "000038",
+		"international relations": "000047",
+		"math":                    "000169",
+		"computer science":        "000009",
+	}
+	for careerName, careerCode := range careers {
+		fmt.Println("\nLooking for students who completed a BA in ", careerName)
+		students := GetStudents(careerCode)
+		fmt.Println("First student: ", students[0])
+	}
+
 }
 
-func GetEconomists() string {
+func GetStudents(careerCode string) []utils.Student {
 	// Gets the name and date of graduation of all economics bachelors
 	c := colly.NewCollector()
-	economists := make([]string, 1)
+	var students []utils.Student
 
 	c.OnHTML("table", func(e *colly.HTMLElement) {
 		c.DetectCharset = true
 		e.ForEach("tr", func(_ int, row *colly.HTMLElement) {
-			// for each line "tr" do amazing things
+			newStudent := utils.Student{}
 			row.ForEach("td", func(_ int, el *colly.HTMLElement) {
 				switch el.Index {
 				case 0:
-					fmt.Println("Nombre", el.Text)
+					newStudent.Name = el.Text
 				case 1:
-					fmt.Println("Año", el.Text)
-				case 3:
-					// Video and slides link
+					newStudent.Year = el.Text
+					students = append(students, newStudent)
 				}
 			})
 
@@ -33,11 +45,11 @@ func GetEconomists() string {
 	})
 
 	c.OnResponse(func(r *colly.Response) {
-		fmt.Println(r.StatusCode)
+		fmt.Println("Request Status code: ", r.StatusCode)
 	})
 
 	c.OnRequest(func(r *colly.Request) {
-		fmt.Println("Visiting", r.URL)
+		// fmt.Println("Visiting", r.URL)
 		r.ResponseCharacterEncoding = "ucs"
 	})
 
@@ -46,7 +58,12 @@ func GetEconomists() string {
 		fmt.Println("Request URL:", r.Request.URL, "failed with response:", r, "\nError:", err)
 	})
 
-	c.Visit("http://escolar1.rhon.itam.mx/titulacion/titulados.asp?prog=000038")
+	url := "http://escolar1.rhon.itam.mx/titulacion/titulados.asp?prog=" + careerCode
+	err := c.Visit(url)
+	if err != nil {
+		return nil
+	}
 
-	return economists[0] // first two elements are not related to the request
+	fmt.Printf("Found %d graduated students\n", len(students))
+	return students[1:] // first element contains the table headers
 }
