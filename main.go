@@ -42,8 +42,3 @@ func main() {
 	}
 
 }
-
-//  todo: improve search to look only in first name
-// interesting example: "Rosa"
-// FOSADO GAYOU ROSA MARIA DEL CARMEN -- Business Administration -- 2011, we do want this result
-// ROSADO MACHAIN JAVIER HUMBERTO  -- no
