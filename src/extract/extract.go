@@ -1,29 +1,15 @@
-package main
+package extract
 
 import (
 	"findStudent/src/utils"
 	"fmt"
 	"github.com/gocolly/colly/v2"
+	"math"
+	"strings"
 )
 
-func main() {
-	careers := map[string]string{
-		"finance":                 "001053",
-		"economics":               "000038",
-		"international relations": "000047",
-		"math":                    "000169",
-		"computer science":        "000009",
-	}
-	for careerName, careerCode := range careers {
-		fmt.Println("\nLooking for students who completed a BA in ", careerName)
-		students := GetStudents(careerCode)
-		fmt.Println("First student: ", students[0])
-	}
-
-}
-
-func GetStudents(careerCode string) []utils.Student {
-	// Gets the name and date of graduation of all economics bachelors
+func GetStudents(careerCode string, careerName string, channel chan []utils.Student) {
+	fmt.Println("\nLooking for students who completed a BA in ", careerName)
 	c := colly.NewCollector()
 	var students []utils.Student
 
@@ -34,9 +20,10 @@ func GetStudents(careerCode string) []utils.Student {
 			row.ForEach("td", func(_ int, el *colly.HTMLElement) {
 				switch el.Index {
 				case 0:
-					newStudent.Name = el.Text
+					newStudent.Name = strings.ToLower(el.Text)
 				case 1:
 					newStudent.Year = el.Text
+					newStudent.Career = careerName
 					students = append(students, newStudent)
 				}
 			})
@@ -49,21 +36,24 @@ func GetStudents(careerCode string) []utils.Student {
 	})
 
 	c.OnRequest(func(r *colly.Request) {
-		// fmt.Println("Visiting", r.URL)
-		r.ResponseCharacterEncoding = "ucs"
+		r.ResponseCharacterEncoding = "ucs" // the right format for these pages
 	})
 
 	// Set error handler
 	c.OnError(func(r *colly.Response, err error) {
 		fmt.Println("Request URL:", r.Request.URL, "failed with response:", r, "\nError:", err)
+		utils.Exit(fmt.Sprintf("Request URL %s failed with error %v", r.Request.URL.Path, err))
 	})
 
 	url := "http://escolar1.rhon.itam.mx/titulacion/titulados.asp?prog=" + careerCode
 	err := c.Visit(url)
 	if err != nil {
-		return nil
+		utils.Exit(fmt.Sprintf("Failed to visit page %s with error %v", url, err))
 	}
 
 	fmt.Printf("Found %d graduated students\n", len(students))
-	return students[1:] // first element contains the table headers
+	// data science has no graduates yet, and for the rest of the careers we need to start at index 1 to avoid
+	// sending table headers into the channel
+	index := math.Min(float64(1), float64(len(students)))
+	channel <- students[int(index):]
 }
