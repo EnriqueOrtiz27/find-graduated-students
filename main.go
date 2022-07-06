@@ -12,15 +12,13 @@ func main() {
 	careers := utils.GetCareers()
 	studentChan := make(chan []utils.Student)
 
-	var student string
-	fmt.Println("Enter the first name of the student you're looking for: ")
-	_, err := fmt.Scanf("%s\n", &student)
-	if err != nil {
-		utils.Exit("Enter a valid name")
-	}
+	var firstName, lastName string
+	fmt.Println("Do not use accents please!")
+	firstName = utils.ReadUserInput("Enter the first name of the student you're looking for: ")
+	lastName = utils.ReadUserInput("Enter the last name of the student you're looking for: ")
+	fmt.Println()
 
 	for careerName, careerCode := range careers {
-		fmt.Println("\nLooking for students who completed a BA in ", careerName)
 		go extract.GetStudents(careerCode, careerName, studentChan)
 	}
 	for i := 0; i < len(careers); i++ {
@@ -28,17 +26,18 @@ func main() {
 		allGraduates = append(allGraduates, students...)
 	}
 
-	fmt.Println("Search concluded: Printing Results")
+	fmt.Printf("\nThese are the names most similar to \"%s %s\":\n\n", firstName, lastName)
 	hasFound := false
 	for _, graduate := range allGraduates {
-		if strings.Contains(graduate.Name, strings.ToLower(student)) {
-			fmt.Printf("%s -- %s -- %s\n", strings.ToTitle(graduate.Name), graduate.Career, graduate.Year)
+		if utils.MatchNames(strings.ToLower(graduate.Name), firstName, lastName) {
+			// strings.Title is deprecated, but it's harmless in this context
+			fmt.Printf("%s: Graduated from %s in %s\n", strings.Title(graduate.Name), graduate.Career, graduate.Year)
 			hasFound = true
 		}
 	}
 
 	if !hasFound {
-		fmt.Printf("No students whose name starts with %s were found.\n", student)
+		fmt.Printf("No students whose name starts with %s were found.\n", firstName)
 	}
 
 }

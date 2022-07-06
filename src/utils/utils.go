@@ -1,8 +1,10 @@
 package utils
 
 import (
+	"bufio"
 	"fmt"
 	"os"
+	"strings"
 )
 
 func GetCareers() map[string]string {
@@ -18,6 +20,21 @@ func GetCareers() map[string]string {
 		"Data Science":            "001352",
 		"Business Administration": "000032",
 	}
+}
+
+func MatchNames(graduateName, firstName, lastName string) bool {
+	graduateName = strings.ToLower(graduateName)
+	return strings.Contains(graduateName, strings.ToLower(firstName)) &&
+		strings.Contains(graduateName, strings.ToLower(lastName))
+}
+
+func ReadUserInput(prompt string) string {
+	fmt.Println(prompt)
+	var answer string
+	scanner := bufio.NewScanner(os.Stdin)
+	scanner.Scan()
+	answer = scanner.Text()
+	return strings.TrimSpace(answer)
 }
 
 func Exit(msg string) {
