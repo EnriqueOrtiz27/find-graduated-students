@@ -37,6 +37,7 @@ Alvarez Ortega Pablo: Graduated from Finance in 2021
 Alvarez De Los Cobos Pablo: Graduated from Business Administration in 1995
 Alvarez Magaña Pablo: Graduated from Business Administration in 2017
 Iglesias Alvarez Pablo: Graduated from Business Administration in 1994
+
 ````
 
 Potential improvements:
