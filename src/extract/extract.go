@@ -9,7 +9,7 @@ import (
 )
 
 func GetStudents(careerCode string, careerName string, channel chan []utils.Student) {
-	fmt.Println("\nLooking for students who completed a BA in ", careerName)
+	// fmt.Println("\nLooking for students who completed a BA in ", careerName)
 	c := colly.NewCollector()
 	var students []utils.Student
 
@@ -32,7 +32,7 @@ func GetStudents(careerCode string, careerName string, channel chan []utils.Stud
 	})
 
 	c.OnResponse(func(r *colly.Response) {
-		fmt.Println("Request Status code: ", r.StatusCode)
+		fmt.Println("Searching...")
 	})
 
 	c.OnRequest(func(r *colly.Request) {
@@ -50,8 +50,6 @@ func GetStudents(careerCode string, careerName string, channel chan []utils.Stud
 	if err != nil {
 		utils.Exit(fmt.Sprintf("Failed to visit page %s with error %v", url, err))
 	}
-
-	fmt.Printf("Found %d graduated students\n", len(students))
 	// data science has no graduates yet, and for the rest of the careers we need to start at index 1 to avoid
 	// sending table headers into the channel
 	index := math.Min(float64(1), float64(len(students)))
