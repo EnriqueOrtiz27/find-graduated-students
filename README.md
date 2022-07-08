@@ -42,11 +42,11 @@ Iglesias Alvarez Pablo: Graduated from Business Administration in 1994
 
 Potential improvements:
 * Allow accents in user's input and remove them
-* Handle cases where last names have more than one space (as in "De  Toledo")
+* Handle cases where last names have more than one space
 * Create a web app where user can select from a given set of careers to speed up the process
 
 
-Note: You can also run the repository unit tests with:
+Note: You can also run the repository's unit tests with:
 ```shell
 go test -v ./src/tests
 ```
